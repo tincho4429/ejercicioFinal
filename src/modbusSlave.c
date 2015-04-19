@@ -139,7 +139,7 @@ static uint16_t cmd0x03ReadHoldingReg(
       {
          /* estado de los leds */
          case MODBUS_ADDRESS_ESTADO_LEDS:
-            temp16u = leds_get();
+            temp16u = leds_get();   //  EN ESTA FUNCION DEBE ENTREGAR EL ESTDO DE MIS LEDS
             ciaaModbus_writeInt(buf, temp16u);
             quantityRegProcessed = 1;
             break;

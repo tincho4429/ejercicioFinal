@@ -3,7 +3,7 @@ OSEK OSEK {
 
    OS	ExampleOS {
       STATUS = EXTENDED;
-      ERRORHOOK = TRUE;
+      ERRORHOOK = FALSE;
       PRETASKHOOK = FALSE;
       POSTTASKHOOK = FALSE;
       STARTUPHOOK = FALSE;
@@ -15,7 +15,8 @@ OSEK OSEK {
    APPMODE = AppMode1;
    EVENT = POSIXE;
    RESOURCE = POSIXR;
-   RESOURCE = MODBUSR;
+   RESOURCE = MODBUSR;   
+   
    
    TASK InitTask {
       PRIORITY = 5;
@@ -23,11 +24,37 @@ OSEK OSEK {
       AUTOSTART = TRUE {
          APPMODE = AppMode1;
       }
-      STACK = 512;
+      STACK = 1024;
       TYPE = BASIC;
+        RESOURCE = POSIXR;    
       SCHEDULE = NON;
    };
 
+      
+   ALARM ActivateTaskA {
+      COUNTER = HardwareCounter;
+      ACTION = ACTIVATETASK {
+         TASK = LecturaTecladoTask;
+      }
+      AUTOSTART = TRUE {
+         APPMODE = AppMode1;
+         ALARMTIME = 1;
+         CYCLETIME = 100;
+      };
+   };
+   
+   TASK LecturaTecladoTask {
+      PRIORITY = 1;
+      ACTIVATION = 1;
+      STACK = 1024;
+      TYPE = EXTENDED;
+      EVENT = POSIXE;
+      RESOURCE = POSIXR;
+      SCHEDULE = FULL;
+   };
+
+   
+   
    COUNTER HardwareCounter {
       MAXALLOWEDVALUE = 1000;
       TICKSPERBASE = 1;
@@ -36,5 +63,54 @@ OSEK OSEK {
       COUNTER = HWCOUNTER0;
    };
 
+
+
+  ALARM ActivateLED {
+      COUNTER = HardwareCounter;
+      ACTION = ACTIVATETASK {
+         TASK = flashLEDTask;
+      }
+      AUTOSTART = TRUE {
+         APPMODE = AppMode1;
+         ALARMTIME = 1;
+         CYCLETIME = 10;
+      };
+   };
+
    
+   
+  
+
+
+
+
+
+
+
+
+
+   
+   ISR UART0_IRQHandler {
+   INTERRUPT = UART0;
+   CATEGORY = 2;
+   PRIORITY = 0;
 };
+
+ISR UART2_IRQHandler {
+   INTERRUPT = UART2;
+   CATEGORY = 2;
+   PRIORITY = 0;
+};
+
+ISR UART3_IRQHandler {
+   INTERRUPT = UART3;
+   CATEGORY = 2;
+   PRIORITY = 0;
+};
+   
+       
+};
+
+
+
+

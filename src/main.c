@@ -82,6 +82,13 @@
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+ uint8_t outputs;
+ uint8_t veces;
+uint8_t conta;
+uint8_t registro;
+uint8_t indice;
+
+uint8_t  LEDS [6] = {0x01,0x02,0x04,0x08,0x10,0x20};
 
 /*==================[external data definition]===============================*/
 
@@ -89,63 +96,125 @@
 
 /*==================[external functions definition]==========================*/
 
-/** \brief Error Hook function
- *
- * This fucntion is called from the os if an os interface (API) returns an
- * error. Is for debugging proposes. If called this function triggers a
- * ShutdownOs which ends in a while(1).
- *
- * The values:
- *    OSErrorGetServiceId
- *    OSErrorGetParam1
- *    OSErrorGetParam2
- *    OSErrorGetParam3
- *    OSErrorGetRet
- *
- * will provide you the interface, the input parameters and the returned value.
- * For more details see the OSEK specification:
- * http://portal.osek-vdx.org/files/pdf/specs/os223.pdf
- *
- */
+/*
 void ErrorHook(void)
 {
-   ciaaPOSIX_printf("ErrorHook was called\n");
+ //  ciaaPOSIX_printf("ErrorHook was called\n");
    ciaaPOSIX_printf("Service: %d, P1: %d, P2: %d, P3: %d, RET: %d\n", OSErrorGetServiceId(), OSErrorGetParam1(), OSErrorGetParam2(), OSErrorGetParam3(), OSErrorGetRet());
    ShutdownOS(0);
 }
 
-/** \brief Main function
- *
- * This is the main entry point of the software.
- *
- * \returns 0
- *
- * \remarks This function never returns. Return value is only to avoid compiler
- *          warnings or errors.
- */
+*/
+
+
+
 int main(void)
 {
+
+   registro = 0x01;
+    veces =2;
+    conta =0;
+indice =2;
+
    /* Starts the operating system in the Application Mode 1 */
    /* This example has only one Application Mode */
    StartOS(AppMode1);
 
    /* StartOs shall never returns, but to avoid compiler warnings or errors
-    * 0 is returned */
+    *//* 0 is returned*/
    return 0;
 }
 
 TASK(InitTask)
 {
    ciaak_start();
-
    teclado_init();
-
    leds_init();
-
-   modbusSlave_init();
+  modbusSlave_init();
 
    TerminateTask();
 }
+
+
+
+TASK (flashLEDTask){
+
+     conta++;
+
+       if (conta >= veces) {  // Solo hace el toogle cuando pasa n ciclos
+
+         leds_toggle (0x02);
+          conta =0;
+
+       }
+
+       leds_on (registro);   //
+
+   TerminateTask();
+
+}
+
+
+
+TASK(LecturaTecladoTask)
+{
+   uint8_t inputs;
+
+   teclado_task ();
+   inputs = teclado_getFlancos();
+
+
+  if (TECLADO_TEC1_BIT & inputs){         /* si se oprime la tecla parpadea el led */
+
+  /*   leds_off (registro);
+     registro = registro>>1;
+     leds_off (registro);
+     leds_on (registro);
+*/
+     indice ++;
+
+    registro =  LEDS [indice];
+    leds_on (indice);
+     }
+
+     if (TECLADO_TEC2_BIT & inputs){          /* si se oprime la tecla parpadea el led */
+     /*   registro = registro<<1;
+        leds_off (registro);
+        leds_on (registro);*/
+
+        indice --;
+
+            registro =  LEDS [indice];
+            leds_on (indice);
+     }
+
+     // COntrol de COntador de Veces
+
+     if (TECLADO_TEC3_BIT & inputs){         /* si se oprime la tecla parpadea el led */
+        veces ++;   // leds_on (0x04);
+     }
+
+     if (TECLADO_TEC4_BIT & inputs){          /* si se oprime la tecla parpadea el led */
+        veces --;  // leds_on (0x08);
+     }
+
+
+   TerminateTask();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

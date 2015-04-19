@@ -109,7 +109,7 @@ extern void teclado_task(void)
    /* guarda el nuevo estado de las teclas */
    estadoTeclas = inputs;
 
-   TerminateTask();
+ /*  TerminateTask(); */
 }
 
 extern uint8_t teclado_getFlancos(void)
@@ -120,6 +120,7 @@ extern uint8_t teclado_getFlancos(void)
 
    return ret;
 }
+
 
 
 /** @} doxygen end group definition */
